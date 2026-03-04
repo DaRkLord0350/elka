@@ -8,3 +8,4 @@ beautifulsoup4
 unstructured
 python-dotenv
 tqdm
+bytez
