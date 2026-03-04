@@ -30,4 +30,15 @@ def generate_answer(question, chunks):
     if results.error:
         raise Exception(f"Model error: {results.error}")
 
-    return results.output
+    # Handle bytez SDK response format
+    output = results.output
+    if isinstance(output, dict):
+        if 'content' in output:
+            return output['content']
+        elif 'text' in output:
+            return output['text']
+        elif 'message' in output:
+            return output['message']
+        else:
+            return str(output)
+    return output
