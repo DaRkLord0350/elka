@@ -1,10 +1,10 @@
-from backend.retrieval.vector_search import search
+from backend.retrieval.hybrid_search import hybrid_search
 from backend.llm.generator import generate_answer
 
 
 def ask_question(question):
 
-    chunks = search(question)
+    chunks = hybrid_search(question)
 
     answer = generate_answer(question, chunks)
 

@@ -9,3 +9,4 @@ unstructured
 python-dotenv
 tqdm
 bytez
+rank-bm25
