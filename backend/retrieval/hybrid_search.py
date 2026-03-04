@@ -3,7 +3,7 @@ from backend.retrieval.bm25_search import keyword_search
 from backend.retrieval.reranker import rerank
 
 
-def hybrid_search(query, top_k=5):
+def hybrid_search(query, top_k=7):
     """
     Hybrid search combining vector search, BM25, and reranking.
     
