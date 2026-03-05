@@ -7,7 +7,7 @@ model = sdk.model("google/gemini-2.5-flash")
 
 
 def build_prompt(question, chunks):
-    context = "\n\n".join(chunks)
+    context = "\n\n".join([chunk["text"] for chunk in chunks])
     return PROMPT_TEMPLATE.format(context=context, question=question)
 
 

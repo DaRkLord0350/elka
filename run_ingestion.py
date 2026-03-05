@@ -8,35 +8,28 @@ from backend.config.settings import DOCUMENT_PATH
 import numpy as np
 import pickle
 
-
 print("Loading documents...")
-
 docs = load_documents(DOCUMENT_PATH)
 
 all_chunks = []
-
 for doc in docs:
-
     text = clean_text(doc["text"])
-
     chunks = chunk_text(text)
-
-    all_chunks.extend(chunks)
-
+    for i, chunk in enumerate(chunks):
+        all_chunks.append({
+            "text": chunk,
+            "source": doc["source"],
+            "chunk_id": i
+        })
 
 print("Generating embeddings...")
-
-embeddings = generate_embeddings(all_chunks)
-
+embeddings = generate_embeddings([c["text"] for c in all_chunks])
 embeddings = np.array(embeddings)
 
-
 print("Building FAISS index...")
-
 create_faiss_index(embeddings)
 
 print("Saving chunks metadata...")
-
 with open("vector_store/chunks.pkl", "wb") as f:
     pickle.dump(all_chunks, f)
 

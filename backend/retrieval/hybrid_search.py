@@ -10,8 +10,9 @@ def hybrid_search(query, top_k=7):
     seen = set()
     combined = []
     for chunk in vector_results + keyword_results:
-        if chunk not in seen:
-            seen.add(chunk)
+        key = (chunk["source"], chunk["chunk_id"])
+        if key not in seen:
+            seen.add(key)
             combined.append(chunk)
     
     if combined:

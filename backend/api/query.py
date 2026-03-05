@@ -17,4 +17,17 @@ def ask_question(question):
     print("="*60)
 
     answer = generate_answer(question, chunks)
-    return answer
+
+    # Deduplicated source list, preserving order
+    seen = set()
+    sources = []
+    for chunk in chunks:
+        src = chunk["source"]
+        if src not in seen:
+            seen.add(src)
+            sources.append(src)
+
+    return {
+        "answer": answer,
+        "sources": sources
+    }

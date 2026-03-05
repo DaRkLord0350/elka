@@ -299,6 +299,11 @@
 
     .rewrite-tag span { color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
 
+    .sources-block { margin-top: 10px; padding: 10px 12px; background: rgba(123,111,240,0.06); border: 1px solid rgba(123,111,240,0.15); border-radius: 8px; }
+    .sources-label { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 6px; font-family: var(--mono); }
+    .sources-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .source-chip { font-size: 11px; color: var(--accent); background: rgba(123,111,240,0.1); border: 1px solid rgba(123,111,240,0.25); border-radius: 4px; padding: 2px 8px; white-space: nowrap; font-family: var(--mono); }
+
     .bubble-time { font-family: var(--mono); font-size: 10px; color: var(--muted); padding: 0 4px; }
 
     /* Thinking */
@@ -875,14 +880,14 @@
 
       if (r.ok) {
         const d = await r.json();
-        addMessage('assistant', d.answer, d.rewritten_query);
+        addMessage('assistant', d.answer, d.rewritten_query, d.sources || []);
       } else {
         const err = await r.json();
-        addMessage('assistant', `⚠️ Error: ${err.detail || 'Something went wrong.'}`);
+        addMessage('assistant', `⚠️ Error: ${err.detail || 'Something went wrong.'}`, '', []);
       }
     } catch {
       removeThinking(thinkingId);
-      addMessage('assistant', '⚠️ Could not connect to ELKA backend. Make sure the server is running on port 8000.');
+      addMessage('assistant', '⚠️ Could not connect to ELKA backend. Make sure the server is running on port 8000.', '', []);
     }
 
     isLoading = false;
@@ -890,7 +895,7 @@
     input.focus();
   }
 
-  function addMessage(role, text, rewritten = '') {
+  function addMessage(role, text, rewritten = '', sources = []) {
     const area = document.getElementById('chat-area');
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -899,11 +904,16 @@
 
     const avatarText = role === 'user' ? 'YOU' : 'ELK';
 
+    const sourcesHtml = (role === 'assistant' && sources && sources.length > 0)
+      ? `<div class="sources-block"><span class="sources-label">📎 Sources</span><div class="sources-list">${sources.map(s => `<span class="source-chip">${escHtml(s)}</span>`).join('')}</div></div>`
+      : '';
+
     div.innerHTML = `
       <div class="avatar ${role}">${avatarText}</div>
       <div class="bubble-wrap">
         <div class="bubble ${role}">${escHtml(text)}</div>
         ${role === 'assistant' && rewritten ? `<div class="rewrite-tag">↻ rewritten: <span>${escHtml(rewritten)}</span></div>` : ''}
+        ${sourcesHtml}
         <div class="bubble-time">${time}</div>
       </div>
     `;

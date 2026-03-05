@@ -10,7 +10,7 @@ def _load_bm25_and_chunks():
     if BM25 is None:
         with open("vector_store/chunks.pkl", "rb") as f:
             CHUNKS = pickle.load(f)
-        tokenized_chunks = [chunk.split() for chunk in CHUNKS]
+        tokenized_chunks = [chunk["text"].split() for chunk in CHUNKS]
         BM25 = BM25Okapi(tokenized_chunks)
 
 

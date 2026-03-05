@@ -39,6 +39,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     question: str
     answer: str
+    sources: list[str]
 
 class BatchQueryRequest(BaseModel):
     questions: list[str]
@@ -59,8 +60,12 @@ def query_rag(request: QueryRequest):
     if not request.question or not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
     try:
-        answer = ask_question(request.question)
-        return {"question": request.question, "answer": answer}
+        result = ask_question(request.question)
+        return {
+            "question": request.question,
+            "answer": result["answer"],
+            "sources": result["sources"]
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
@@ -138,10 +143,10 @@ def batch_query(request: BatchQueryRequest):
                 results.append({"question": question, "answer": None, "error": "Empty question"})
                 continue
             try:
-                answer = ask_question(question)
-                results.append({"question": question, "answer": answer, "error": None})
+                result = ask_question(question)
+                results.append({"question": question, "answer": result["answer"], "sources": result["sources"], "error": None})
             except Exception as e:
-                results.append({"question": question, "answer": None, "error": str(e)})
+                results.append({"question": question, "answer": None, "sources": [], "error": str(e)})
         return {"results": results, "total": len(results), "successful": sum(1 for r in results if r["error"] is None)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Batch query error: {str(e)}")
