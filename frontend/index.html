@@ -576,6 +576,37 @@
           <div style="font-size: 22px; font-weight: 800; margin-bottom: 6px;">Document Library</div>
           <div style="color: var(--muted); font-size: 14px;">Manage your indexed knowledge base</div>
         </div>
+
+        <!-- External Knowledge Sync -->
+        <div style="margin-bottom:28px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;">
+          <div style="font-size:16px;font-weight:700;margin-bottom:10px;">
+            External Knowledge Sources
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+
+            <button class="action-btn" onclick="openCredentialsModal('gdrive')">
+              ☁️ Google Drive
+            </button>
+
+            <button class="action-btn" onclick="openCredentialsModal('slack')">
+              💬 Slack
+            </button>
+
+            <button class="action-btn" onclick="openCredentialsModal('notion')">
+              📒 Notion
+            </button>
+
+          </div>
+
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+            Enter your credentials to import enterprise knowledge sources.
+          </div>
+
+          <div id="sync-status" style="font-family:var(--mono);font-size:11px;color:var(--accent2);min-height:18px;">
+          </div>
+        </div>
+
         <div id="docs-panel-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
     </div>
@@ -652,6 +683,68 @@
     </div>
 
   </main>
+</div>
+
+<!-- Credentials Modal -->
+<div id="credentials-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9000; align-items:center; justify-content:center;" onclick="closeCredentialsModal(event)">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;" onclick="event.stopPropagation()">
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:20px;font-weight:700;" id="modal-title">Enter Credentials</div>
+      <button onclick="closeCredentialsModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:24px;">×</button>
+    </div>
+
+    <!-- Google Drive Form -->
+    <div id="form-gdrive" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Folder ID</label>
+        <input id="gdrive-folder-id" type="text" placeholder="e.g., 1a2b3c4d5e6f..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:14px;font-family:var(--mono);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">UUID from Google Drive folder URL</div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Service Account JSON</label>
+        <textarea id="gdrive-json" placeholder='{"type":"service_account",...}' style="width:100%;height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:12px;font-family:var(--mono);resize:vertical;"></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Or paste service account JSON file content</div>
+      </div>
+    </div>
+
+    <!-- Slack Form -->
+    <div id="form-slack" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Bot Token</label>
+        <input id="slack-token" type="password" placeholder="xoxb-..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:14px;font-family:var(--mono);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Your Slack Bot User OAuth Token</div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Channel ID</label>
+        <input id="slack-channel" type="text" placeholder="C0123456789" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:14px;font-family:var(--mono);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Channel ID from Slack workspace</div>
+      </div>
+    </div>
+
+    <!-- Notion Form -->
+    <div id="form-notion" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">API Token</label>
+        <input id="notion-token" type="password" placeholder="secret_..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:14px;font-family:var(--mono);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Your Notion Internal Integration Token</div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Database ID</label>
+        <input id="notion-database" type="text" placeholder="a1b2c3d4e5f6..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:14px;font-family:var(--mono);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Your Notion database ID from the URL</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:24px;">
+      <button onclick="closeCredentialsModal()" style="flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);cursor:pointer;font-weight:600;font-size:14px;font-family:var(--sans);">Cancel</button>
+      <button id="sync-submit-btn" onclick="submitCredentialsAndSync()" style="flex:1;padding:12px 16px;border:none;border-radius:8px;background:var(--accent);color:#000;cursor:pointer;font-weight:600;font-size:14px;font-family:var(--sans);">Sync & Index</button>
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -988,6 +1081,135 @@
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
+  }
+
+  // ── External Sync ──
+  let currentSource = null;
+
+  function openCredentialsModal(source) {
+    currentSource = source;
+    const modal = document.getElementById('credentials-modal');
+    const titles = { gdrive: 'Google Drive', slack: 'Slack', notion: 'Notion' };
+    const forms = { gdrive: 'form-gdrive', slack: 'form-slack', notion: 'form-notion' };
+    
+    // Hide all forms
+    document.getElementById('form-gdrive').style.display = 'none';
+    document.getElementById('form-slack').style.display = 'none';
+    document.getElementById('form-notion').style.display = 'none';
+    
+    // Show selected form
+    document.getElementById(forms[source]).style.display = 'block';
+    document.getElementById('modal-title').textContent = `${titles[source]} Credentials`;
+    
+    // Clear previous values
+    clearCredentialInputs();
+    
+    modal.style.display = 'flex';
+  }
+
+  function closeCredentialsModal(event) {
+    if (event && event.target.id !== 'credentials-modal') return;
+    document.getElementById('credentials-modal').style.display = 'none';
+    currentSource = null;
+  }
+
+  function clearCredentialInputs() {
+    document.getElementById('gdrive-folder-id').value = '';
+    document.getElementById('gdrive-json').value = '';
+    document.getElementById('slack-token').value = '';
+    document.getElementById('slack-channel').value = '';
+    document.getElementById('notion-token').value = '';
+    document.getElementById('notion-database').value = '';
+  }
+
+  async function submitCredentialsAndSync() {
+    if (!currentSource) return;
+    
+    const btn = document.getElementById('sync-submit-btn');
+    const status = document.getElementById('sync-status');
+    const sourceNames = { gdrive: 'Google Drive', slack: 'Slack', notion: 'Notion' };
+    const sourceName = sourceNames[currentSource];
+    
+    let credentials = {};
+    
+    if (currentSource === 'gdrive') {
+      const folderId = document.getElementById('gdrive-folder-id').value.trim();
+      const json = document.getElementById('gdrive-json').value.trim();
+      
+      if (!folderId && !json) {
+        showToast('Please enter Folder ID or Service Account JSON', 'error');
+        return;
+      }
+      
+      let serviceAccountJson = null;
+      if (json) {
+        try {
+          serviceAccountJson = JSON.parse(json);
+        } catch (e) {
+          showToast('Invalid Service Account JSON format', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Sync & Index';
+          return;
+        }
+      }
+      
+      credentials = {
+        folder_id: folderId,
+        service_account_json: serviceAccountJson
+      };
+    } else if (currentSource === 'slack') {
+      const token = document.getElementById('slack-token').value.trim();
+      const channel = document.getElementById('slack-channel').value.trim();
+      
+      if (!token || !channel) {
+        showToast('Please enter both Bot Token and Channel ID', 'error');
+        return;
+      }
+      
+      credentials = { token, channel_id: channel };
+    } else if (currentSource === 'notion') {
+      const token = document.getElementById('notion-token').value.trim();
+      const database = document.getElementById('notion-database').value.trim();
+      
+      if (!token || !database) {
+        showToast('Please enter both API Token and Database ID', 'error');
+        return;
+      }
+      
+      credentials = { token, database_id: database };
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Syncing...';
+    status.textContent = `Syncing ${sourceName}...`;
+    
+    try {
+      const r = await fetch(`${API}/sync/${currentSource}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials)
+      });
+      
+      const d = await r.json();
+      
+      if (r.ok) {
+        status.textContent = `✓ ${sourceName} synced successfully`;
+        showToast(`${sourceName} documents imported and indexed`, 'success');
+        closeCredentialsModal();
+        await loadDocs();
+        renderDocsPanel();
+      } else {
+        status.textContent = `✗ Sync failed`;
+        showToast(d.detail || 'Sync failed', 'error');
+      }
+    } catch (e) {
+      status.textContent = `✗ Could not reach backend`;
+      showToast('Backend not reachable', 'error');
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sync & Index';
+    }
   }
 </script>
 </body>
