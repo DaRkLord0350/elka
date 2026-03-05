@@ -255,11 +255,21 @@ def sync_external_source(source: str, credentials: dict = Body(...)):
         print(f"Running ingestion pipeline for {source_name} sync...")
         result = subprocess.run(
             ["python", "run_ingestion.py"],
-            capture_output=True, text=True, timeout=600
+            capture_output=True, text=True, timeout=600, cwd="."
         )
         
+        print("INGESTION STDOUT:", result.stdout)
+        if result.stderr:
+            print("INGESTION STDERR:", result.stderr)
+        
         if result.returncode != 0:
-            raise Exception(f"Ingestion failed: {result.stderr}")
+            error_detail = result.stderr if result.stderr else f"Ingestion exited with code {result.returncode}"
+            raise Exception(f"Ingestion failed: {error_detail}")
+        
+        # Reload vector store to pick up newly indexed documents
+        print(f"Reloading vector store...")
+        from backend.retrieval.vector_search import reload_index_and_chunks
+        reload_index_and_chunks()
         
         return {
             "status": "synced",

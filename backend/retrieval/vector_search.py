@@ -27,6 +27,18 @@ def _load_index_and_chunks():
             CHUNKS = pickle.load(f)
 
 
+def reload_index_and_chunks():
+    """
+    Force reload of the vector store and chunks.
+    Call this after ingestion to refresh the cache.
+    """
+    global INDEX, CHUNKS
+    INDEX = None
+    CHUNKS = None
+    _load_index_and_chunks()
+    print("✓ Vector store reloaded")
+
+
 def search(query, top_k=5):
     _load_index_and_chunks()
     query_embedding = generate_embeddings([query])

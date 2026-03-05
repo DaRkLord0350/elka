@@ -1193,11 +1193,17 @@
       const d = await r.json();
       
       if (r.ok) {
-        status.textContent = `✓ ${sourceName} synced successfully`;
-        showToast(`${sourceName} documents imported and indexed`, 'success');
+        status.textContent = `✓ ${sourceName} synced, indexed & ready to query!`;
+        showToast(`${sourceName} documents imported, indexed & searchable`, 'success');
         closeCredentialsModal();
         await loadDocs();
         renderDocsPanel();
+        
+        // Scroll to chat to encourage user to ask questions
+        setTimeout(() => {
+          document.getElementById('question-input').focus();
+          document.getElementById('question-input').placeholder = `Ask about your ${sourceName} data...`;
+        }, 500);
       } else {
         status.textContent = `✗ Sync failed`;
         showToast(d.detail || 'Sync failed', 'error');
